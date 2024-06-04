@@ -10,7 +10,6 @@ class SpentBalanceCheck(Validator):
         super().__init__(web3, contract_address)
         self.last_processed_block = self.w3.eth.block_number
         self.user_vm_data = self.load_user_vm_data(user_vm_file)  # Load data on init
-        print(self.user_vm_data)
 
     def load_user_vm_data(self, filename):
         """Loads user-VM data from a JSON file."""
@@ -23,18 +22,16 @@ class SpentBalanceCheck(Validator):
             return {}  # Return empty dict on error
 
     async def validate(self):
-        print("Validating Bridge Gateway drained funds")
         for user_address, vm_ids in self.user_vm_data.get("users", {}).items():
-            #load user credits from the contract
+            #print user address
+            print(user_address)
+
             user_credits_wei = self.contract.functions.userMinuteCredits(user_address).call()
             user_credits = Web3.from_wei(user_credits_wei, 'ether')  # Convert from wei to ether equivalent
-            print(f"User {user_address}: {user_credits} minutes remaining")
             for vm_id in vm_ids:
 
                 # Call getTotalMinutesConsumed for each VM
                 total_minutes = self.contract.functions.getTotalMinutesConsumed(vm_id).call()
                 # Process the retrieved total minutes (log, store, etc.)
-                print(f"User {user_address}, VM {vm_id}: {total_minutes} minutes consumed")
-                # You can add further logic to handle the retrieved data here
 
         return True

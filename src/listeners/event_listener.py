@@ -1,3 +1,4 @@
+import asyncio
 import src.log as log
 from web3 import Web3
 from src.settings import load_helper_abi
@@ -7,29 +8,24 @@ logger = log.get_logger(__name__)
 class EventListener:
     status = True
 
-    def __init__(self, web3, contract_address, filter, blocknumber='latest'):
+    def __init__(self, web3, contract_address, event_name):
         self.w3 = web3
         self.contract_address = contract_address
-        self.blocknumber = blocknumber
-        self.last_block_processed = web3.eth.block_number
-
         abi = load_helper_abi()
-
         self.contract = self.w3.eth.contract(address=contract_address, abi=abi)
-        self.filter = filter
-        logger.info("%s event listener started", self.filter)
-
+        self.event_name = event_name
+        logger.info("%s event listener started", self.event_name)
 
     async def listen(self):
-        for event in self.contract.events[self.filter].createFilter(fromBlock=self.blocknumber).get_new_entries():
-            if (self.match_condition(event) and event['blockNumber'] > self.last_block_processed):
-                logger.info("%s event received:", self.filter)
-                logger.info(" - block: %d", event['blockNumber'])
-                logger.info(" - tx: %s", event['transactionHash'].hex())
-                logger.info(" - contract: %s", self.contract_address)
-
-                self.on_event(event)
-                self.last_block_processed = event['blockNumber']
+        event_filter = self.contract.events[self.event_name].create_filter(fromBlock='latest')
+        while True:
+            for event in event_filter.get_new_entries():
+                if self.match_condition(event):
+                    logger.info("%s event received:", self.event_name)
+                    logger.info(" - block: %d", event['blockNumber'])
+                    logger.info(" - tx: %s", event['transactionHash'].hex())
+                    logger.info(" - contract: %s", self.contract_address)
+                    self.on_event(event)
 
     def match_condition(self, event):
         return True
