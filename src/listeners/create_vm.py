@@ -1,5 +1,4 @@
 from .event_listener import EventListener
-from src.providers.rest_provider import rest_provider
 import src.log as log
 
 logger = log.get_logger(__name__)

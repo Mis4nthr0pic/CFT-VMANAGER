@@ -1,4 +1,7 @@
+import src.log as log
 import requests
+
+logger = log.get_logger(__name__)
 
 class HyperStack:
     def __init__(self, api_key, base_url="https://infrahub-api.nexgencloud.com/v1/core/"):

@@ -7,6 +7,7 @@ load_dotenv(find_dotenv())
 RPC_L1_ENDPOINT = os.getenv("RPC_L1_ENDPOINT")
 RPC_L1_NAME = os.getenv("RPC_L1_NAME")
 VMANAGER_ADDRESS = os.getenv("VMANAGER_ADDRESS")
+HYPERSTACK_KEY = os.getenv("HYPERSTACK_KEY")
 
 def load_helper_abi():
     with open("src/abi.json") as abi_file:
