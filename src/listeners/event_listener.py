@@ -18,14 +18,13 @@ class EventListener:
 
     async def listen(self):
         event_filter = self.contract.events[self.event_name].create_filter(fromBlock='latest')
-        while True:
-            for event in event_filter.get_new_entries():
-                if self.match_condition(event):
-                    logger.info("%s event received:", self.event_name)
-                    logger.info(" - block: %d", event['blockNumber'])
-                    logger.info(" - tx: %s", event['transactionHash'].hex())
-                    logger.info(" - contract: %s", self.contract_address)
-                    self.on_event(event)
+        for event in event_filter.get_new_entries():
+            if self.match_condition(event):
+                logger.info("%s event received:", self.event_name)
+                logger.info(" - block: %d", event['blockNumber'])
+                logger.info(" - tx: %s", event['transactionHash'].hex())
+                logger.info(" - contract: %s", self.contract_address)
+                self.on_event(event) 
 
     def match_condition(self, event):
         return True

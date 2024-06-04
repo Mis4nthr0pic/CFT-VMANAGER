@@ -18,11 +18,13 @@ async def main():
     spent_balance_checker = SpentBalanceCheck(web3L1, settings.VMANAGER_ADDRESS)
 
     # Run listeners and validators concurrently
-    await asyncio.gather(
-        asyncio.create_task(virtual_machine_create.listen()),
-        asyncio.create_task(virtual_machine_started.listen()),
-        asyncio.create_task(spent_balance_checker.validate())
-    )
+    while(True):
+        await asyncio.create_task(virtual_machine_create.listen())    
+        await asyncio.create_task(virtual_machine_started.listen())
+        await asyncio.create_task(spent_balance_checker.validate())
+
+        print("scanning blocknumber: ", web3L1.eth.get_block('latest').number)
+        await asyncio.sleep(2)
 
 if __name__ == "__main__":
     try:

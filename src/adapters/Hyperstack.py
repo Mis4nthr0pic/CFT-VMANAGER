@@ -27,4 +27,3 @@ class HyperStack:
             return response.json()
         else:
             response.raise_for_status()
-
