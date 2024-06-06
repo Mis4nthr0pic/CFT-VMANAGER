@@ -5,18 +5,29 @@ import random
 logger = log.get_logger(__name__)
 
 class CreateVirtualMachine:
+    FILTER = "VirtualMachineCreated"
+    ON_EVENT_MESSAGE = "Creating VM: %s"
+
     def __init__(self, web3, contract_address, api_key):
         self.web3 = web3
         self.contract_address = contract_address
         self.hyperstack = HyperStack(api_key)
         self.animals = [
             "Lion", "Lamb", "Eagle", "Serpent", "Dove", "Raven", "Ox", "Leopard", 
-            "Bear", "Wolf", "Horse", "Unicorn", "Vulture"
+            "Bear", "Wolf", "Horse", "Unicorn", "Leviathan", "Vulture"
         ]
 
     def listen(self):
         # Listening logic here
         pass
+
+    def on_event(self, event):
+        print('EVENT CAUGHT')
+        print(event)
+        # Generate VM data
+        vm_data = self.get_vm_data_template()
+        # Create the VM
+        self.create_vm(vm_data)
 
     def create_vm(self, vm_data):
         try:
