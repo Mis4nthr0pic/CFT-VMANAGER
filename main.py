@@ -2,9 +2,9 @@ import multiprocessing
 from web3 import Web3
 import src.settings as settings
 import src.log as log
-from src.listeners.create_vm import CreateVirtualMachine
-from src.listeners.start_vm import StartVirtualMachine
-from src.listeners.stop_vm import StopVirtualMachine
+from src.listeners.create_virtual_machine import CreateVirtualMachine
+from src.listeners.start_virtual_machine import StartVirtualMachine
+from src.listeners.stop_virtual_machine import StopVirtualMachine
 from src.validators.spent_balance_check import SpentBalanceCheck
 from src.validators.validator import Validator
 from src.providers.connection_provider import ConnectionProvider
@@ -29,7 +29,7 @@ def main():
         (CreateVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
         (StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
         (StopVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  # Adjust as needed
+        (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  
     ]
 
     processes = []
