@@ -6,7 +6,6 @@ import src.log as log
 from src.listeners.create_vm import CreateVirtualMachine
 from src.listeners.start_vm import StartVirtualMachine
 from src.listeners.stop_vm import StopVirtualMachine
-
 from src.validators.spent_balance_check import SpentBalanceCheck
 from src.validators.validator import Validator
 
