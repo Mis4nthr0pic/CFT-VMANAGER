@@ -1,5 +1,4 @@
 import multiprocessing
-import logging
 from web3 import Web3
 import src.settings as settings
 import src.log as log
@@ -8,13 +7,14 @@ from src.listeners.start_vm import StartVirtualMachine
 from src.listeners.stop_vm import StopVirtualMachine
 from src.validators.spent_balance_check import SpentBalanceCheck
 from src.validators.validator import Validator
+from src.providers.connection_provider import ConnectionProvider
 
 logger = log.get_logger(__name__)
 
-def run_listener(listener_class, web3_url, contract_address):
-    web3 = Web3(Web3.HTTPProvider(web3_url))
-    if not web3.is_connected():
-        logger.error(f"Failed to connect to Web3 at {web3_url}")
+def run_listener(listener_class, provider, contract_address):
+    web3 = provider.connect(is_http=True)
+    if not web3:
+        logger.error(f"Failed to connect to Web3 at {provider.url}")
         return
     instance = listener_class(web3, contract_address)
     
@@ -26,15 +26,16 @@ def run_listener(listener_class, web3_url, contract_address):
 def main():
     # Define the listener processes
     listeners = [
-        (CreateVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        (StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        (StopVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  # Adjust as needed
+        (CreateVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS, True),
+        (StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS, True),
+        (StopVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS, True),
+        (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS, True)  # Adjust as needed
     ]
 
     processes = []
-    for listener_class, web3_url, contract_address in listeners:
-        process = multiprocessing.Process(target=run_listener, args=(listener_class, web3_url, contract_address))
+    for listener_class, web3_url, contract_address, is_http in listeners:
+        provider = ConnectionProvider(listener_class.__name__, web3_url, is_http)
+        process = multiprocessing.Process(target=run_listener, args=(listener_class, provider, contract_address))
         process.start()
         processes.append(process)
 
