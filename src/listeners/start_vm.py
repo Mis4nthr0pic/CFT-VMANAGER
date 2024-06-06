@@ -1,43 +1,34 @@
+from .event_listener import EventListener
 import src.log as log
 from src.adapters.Hyperstack import HyperStack
-import random
 
 logger = log.get_logger(__name__)
 
-class CreateVirtualMachine:
+class StartVirtualMachine(EventListener):
+    FILTER = "VirtualMachineStarted"
+    ON_EVENT_MESSAGE = "Starting VM: %s"
+
     def __init__(self, web3, contract_address, api_key):
-        self.web3 = web3
-        self.contract_address = contract_address
+        print('VirtualMachineStarted watcher started')
+        super().__init__(web3, contract_address, self.FILTER)
         self.hyperstack = HyperStack(api_key)
-        self.names = [
-            "Lion", "Lamb", "Eagle", "Serpent", "Dove", "Raven", "Ox", "Leopard", 
-            "Bear", "Wolf", "Horse", "Unicorn", "Vulture"
-        ]
 
-    def listen(self):
-        # Listening logic here
-        pass
+    def match_condition(self, event):
+        return True
 
-    def create_vm(self, vm_data):
+    def on_event(self, event):
+        print('EVENT CAUGHT')
+        print(event)
+        # Extract relevant information from the event
+        vm_id = event['args']['vmId']
+        operator = event['args']['operator']
+        #self.start_vm(vm_id)
+
+    def start_vm(self, vm_id):
         try:
-            #response = self.hyperstack.post("virtual-machines", vm_data)
-            #logger.info(f"VM creation successful: {response}")
-            return response
+            response = self.hyperstack.get(f"virtual-machines/{vm_id}/start", {})
+            logger.info(f"VM {vm_id} started successfully.")
+            print(f"VM {vm_id} started successfully.")
         except Exception as e:
-            logger.error(f"VM creation failed: {str(e)}")
-            return None
-
-    def get_vm_data_template(self):
-        random_name = f"{random.choice(self.names)}{random.randint(100000, 999999)}"
-        return {
-            "name": random_name,
-            "environment_name": "CFT-BASIC",
-            "image_name": "Ubuntu Server 22.04 LTS R535 CUDA 12.2",
-            "volume_name": "",
-            "create_bootable_volume": False,
-            "user_data": "#cloud-config\nusers:\n  - name: demo\n    ssh-authorized-keys:\n      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCnLaIyV2h7JYEjqN+jOq09cTK5VP6XclvkmWhbxmSyw+T4LRecJxT8kTf1GFXXNPeaLsRzvv/13cDW+2IGYB6D2WjShkkSg2zV9jZH6zIDNClOlaBHo/rj2YEI4R4aQl+6WCa/JVo3gz6zdOcwSkqO3DimrgpHdYSSCn5MdNSgeZY8LW3sdHyW77DDW2LPN35BNSdKDcHGJZCCTrw96yy10aJnzmPJIcQ5sxI0B8IloHgo+17uM8SLQ5Yqaon/81YI4ZTgAOg6KbxHxuXP/4USVa8mNxoyfB2OtpLo+Tm28E744YtX3DmFVeO6QKDOQED/2blNjps+t1OW+aiTDedr3/HCByGxbci8ZswhDp2VzHJEpe2rmPkOd8SKoCyN1v2Kxt0x7wVp35ZlUZ9K4zDFMqKxRZpwV2p3eRsYIzfpl+OSbb/8V5mJ3J4/0s7uweY3Ys06CJ2lz6vg5bcJVi9tjnsppjdBRU9XIYChskwqrwHwQON/X2OCA+yIa+Y2jBtX9SB/UwtcUzLjnFQSzIxiuJJeUm2O7wfQvONbVnzJCj49sTe4v0sGPQJZUA6mDT7dYkDXVtB+Sc7q0n3zART+oHMObWwS1XvAOXZC7HGDqX/2r403dQpJvFB7XngRHZI/hxls8zrWwM1SFeKekd1R4b6q6Cx9WH91zEC1MVrx7Q== mis4nthr0pic@proton.me\n    sudo: ['ALL=(ALL) NOPASSWD:ALL']\n    groups: sudo\n    shell: /bin/bash\nwrite_files:\n  - path: /etc/ssh/sshd_config\n    content: |\n         Port 4444",
-            "flavor_name": "n1-cpu-small",
-            "key_name": "MIS KEY",
-            "assign_floating_ip": True,
-            "count": 1
-        }
+            logger.error(f"Failed to start VM {vm_id}: {str(e)}")
+            print(f"Failed to start VM {vm_id}: {str(e)}")
