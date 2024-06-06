@@ -1,30 +1,43 @@
-import asyncio
-import src.log as log
+import logging
 from web3 import Web3
-from src.settings import load_helper_abi
+from src.settings import load_helper_abi, load_json, update_json, DB_FILE
 
-logger = log.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class EventListener:
-    status = True
-
-    def __init__(self, web3, contract_address, event_name):
+    def __init__(self, web3: Web3, contract_address: str, event_name: str):
         self.w3 = web3
         self.contract_address = contract_address
         abi = load_helper_abi()
         self.contract = self.w3.eth.contract(address=contract_address, abi=abi)
         self.event_name = event_name
-        logger.info("%s event listener started", self.event_name)
+        self.last_processed_block = load_json(DB_FILE).get("processed_blocks", {}).get(self.event_name, 0)
+        logger.info(f"LAST BLOCK PROCESSED: {self.last_processed_block}")
+        logger.info(f"{self.event_name} event listener started")
 
-    async def listen(self):
-        event_filter = self.contract.events[self.event_name].create_filter(fromBlock='latest')
-        for event in event_filter.get_new_entries():
-            if self.match_condition(event):
-                logger.info("%s event received:", self.event_name)
-                logger.info(" - block: %d", event['blockNumber'])
-                logger.info(" - tx: %s", event['transactionHash'].hex())
-                logger.info(" - contract: %s", self.contract_address)
-                self.on_event(event) 
+    def listen(self):
+        while True:
+            try:
+                latest_block = self.w3.eth.get_block('latest').number
+                logger.info(f"Listening for {self.event_name} from block {self.last_processed_block} to {latest_block}")
+
+                if self.last_processed_block == 'lastest':
+                    self.last_processed_block = latest_block
+
+                if latest_block > self.last_processed_block:
+                    event_filter = self.contract.events[self.event_name].create_filter(fromBlock=self.last_processed_block, toBlock=latest_block)
+                    events = event_filter.get_all_entries()
+                    for event in events:
+                        logger.info(f"{self.event_name} event received:")
+                        logger.info(f" - block: {event['blockNumber']}")
+                        logger.info(f" - tx: {event['transactionHash'].hex()}")
+                        logger.info(f" - contract: {self.contract_address}")
+                        if self.match_condition(event):
+                            self.on_event(event)
+                    self.last_processed_block = latest_block
+                    update_json(DB_FILE, "processed_blocks", self.event_name, latest_block)
+            except Exception as e:
+                logger.error(f"Error in listening to events: {e}")
 
     def match_condition(self, event):
         return True

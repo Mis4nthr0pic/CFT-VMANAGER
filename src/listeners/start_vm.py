@@ -1,6 +1,5 @@
 from .event_listener import EventListener
 import src.log as log
-import requests
 
 logger = log.get_logger(__name__)
 

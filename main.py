@@ -1,33 +1,47 @@
-import asyncio
+import multiprocessing
+import logging
+from web3 import Web3
 import src.settings as settings
 import src.log as log
-from src.providers.connection_provider import connectionProvider
 from src.listeners.create_vm import CreateVirtualMachine
 from src.listeners.start_vm import StartVirtualMachine
 from src.validators.spent_balance_check import SpentBalanceCheck
+from src.validators.validator import Validator
 
 logger = log.get_logger(__name__)
 
-async def main():
-    # Initialize Web3 connection
-    web3L1 = connectionProvider(settings.RPC_L1_NAME, settings.RPC_L1_ENDPOINT, is_http=False).connect()
+def run_listener(listener_class, web3_url, contract_address):
+    web3 = Web3(Web3.HTTPProvider(web3_url))
+    if not web3.is_connected():
+        logger.error(f"Failed to connect to Web3 at {web3_url}")
+        return
+    instance = listener_class(web3, contract_address)
+    
+    if isinstance(instance, Validator):
+        instance.validate()
+    else:
+        instance.listen()
 
-    # Initialize event listeners and validators
-    virtual_machine_create = CreateVirtualMachine(web3L1, settings.VMANAGER_ADDRESS)
-    virtual_machine_started = StartVirtualMachine(web3L1, settings.VMANAGER_ADDRESS)
-    spent_balance_checker = SpentBalanceCheck(web3L1, settings.VMANAGER_ADDRESS)
+def main():
+    # Define the listener processes
+    listeners = [
+        (CreateVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
+        (StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
+        (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  # Adjust as needed
+    ]
 
-    # Run listeners and validators concurrently
-    while(True):
-        await asyncio.create_task(virtual_machine_create.listen())    
-        await asyncio.create_task(virtual_machine_started.listen())
-        await asyncio.create_task(spent_balance_checker.validate())
+    processes = []
+    for listener_class, web3_url, contract_address in listeners:
+        process = multiprocessing.Process(target=run_listener, args=(listener_class, web3_url, contract_address))
+        process.start()
+        processes.append(process)
 
-        print("scanning blocknumber: ", web3L1.eth.get_block('latest').number)
-        await asyncio.sleep(2)
+    # Join the processes to ensure they keep running
+    for process in processes:
+        process.join()
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         logger.info("Exit")
