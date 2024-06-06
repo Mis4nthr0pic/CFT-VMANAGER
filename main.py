@@ -5,6 +5,8 @@ import src.settings as settings
 import src.log as log
 from src.listeners.create_vm import CreateVirtualMachine
 from src.listeners.start_vm import StartVirtualMachine
+from src.listeners.stop_vm import StopVirtualMachine
+
 from src.validators.spent_balance_check import SpentBalanceCheck
 from src.validators.validator import Validator
 
@@ -27,6 +29,7 @@ def main():
     listeners = [
         (CreateVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
         (StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
+        (StopVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
         (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  # Adjust as needed
     ]
 
