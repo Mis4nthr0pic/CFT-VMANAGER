@@ -34,7 +34,7 @@ def main():
 
     processes = []
     for listener_class, web3_url, contract_address, is_http in listeners:
-        provider = ConnectionProvider(listener_class.__name__, web3_url, is_http)
+        provider = ConnectionProvider(listener_class.__name__, web3_url)
         process = multiprocessing.Process(target=run_listener, args=(listener_class, provider, contract_address))
         process.start()
         processes.append(process)
