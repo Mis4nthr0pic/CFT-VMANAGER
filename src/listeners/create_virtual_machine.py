@@ -27,7 +27,7 @@ class CreateVirtualMachine:
         # Generate VM data
         vm_data = self.get_vm_data_template()
         # Create the VM
-        self.create_vm(vm_data)
+        #self.create_vm(vm_data)
 
     def create_vm(self, vm_data):
         try:

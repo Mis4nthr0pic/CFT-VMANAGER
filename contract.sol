@@ -131,3 +131,106 @@ contract VManager {
         }
     }
 }
+
+
+/* Multi machine contract
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
+
+interface ERC20 {
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool success);
+    function transfer(address _to, uint256 _value) external returns (bool success);
+    function balanceOf(address _owner) external view returns (uint256 balance);
+}
+
+contract VManager {
+
+    struct VirtualMachine {
+        address owner;
+        address currentOperator;
+        bool isRunning;
+        uint256 startTime;
+        uint256 totalMinutesConsumed;
+    }
+
+    mapping(uint256 => VirtualMachine) public virtualMachines;
+    mapping(address => uint256[]) public userVirtualMachines;
+    mapping(address => uint256) public userVmCount;
+    mapping(address => uint256) public userRunningVmCount;
+    mapping(address => uint256) public userMinuteCredits;
+    uint256 public nextId = 1;
+    address public tokenAddress;
+
+    event VirtualMachineCreated(uint256 vmId, address operator);
+    event VirtualMachineStarted(uint256 vmId, address operator);
+    event VirtualMachineStopped(uint256 vmId, address operator);
+
+    modifier onlyOwnerOrOperator(uint256 vmId) {
+        require(
+            msg.sender == virtualMachines[vmId].owner ||
+            msg.sender == virtualMachines[vmId].currentOperator,
+            "Only owner or operator can perform this action"
+        );
+        _;
+    }
+
+    constructor(address _tokenAddress) {
+        tokenAddress = _tokenAddress;
+    }
+
+    function createVirtualMachine() external returns (uint256) {
+        uint256 vmId = nextId++;
+        virtualMachines[vmId] = VirtualMachine({
+            owner: msg.sender,
+            currentOperator: address(0),
+            isRunning: false,
+            startTime: 0,
+            totalMinutesConsumed: 0
+        });
+        userVirtualMachines[msg.sender].push(vmId);
+        userVmCount[msg.sender]++;
+        emit VirtualMachineCreated(vmId, msg.sender);
+        return vmId;
+    }
+
+    function startVirtualMachine(uint256 vmId) external onlyOwnerOrOperator(vmId) {
+        require(!virtualMachines[vmId].isRunning, "Virtual machine is already running");
+        require(userMinuteCredits[msg.sender] > 0, "Insufficient minute credits");
+        virtualMachines[vmId].isRunning = true;
+        virtualMachines[vmId].currentOperator = msg.sender;
+        virtualMachines[vmId].startTime = block.timestamp;
+        userRunningVmCount[msg.sender]++;
+        emit VirtualMachineStarted(vmId, msg.sender);
+    }
+
+    function stopVirtualMachine(uint256 vmId) external onlyOwnerOrOperator(vmId) {
+        require(virtualMachines[vmId].isRunning, "Virtual machine is not running");
+        uint256 secondsDifference = block.timestamp - virtualMachines[vmId].startTime;
+        uint256 minutesWithDecimals = (secondsDifference * 10 ** 18) / 60;
+        virtualMachines[vmId].totalMinutesConsumed += minutesWithDecimals;
+        virtualMachines[vmId].isRunning = false;
+        userRunningVmCount[msg.sender]--;
+        emit VirtualMachineStopped(vmId, msg.sender);
+    }
+
+    function depositTokens(uint256 amount) external {
+        ERC20 token = ERC20(tokenAddress);
+        require(token.transferFrom(msg.sender, address(this), amount), "Token transfer failed");
+        userMinuteCredits[msg.sender] += amount;
+    }
+
+    function getTotalMinutesConsumed(address user) external view returns (uint256) {
+        uint256 totalMinutes;
+        for (uint256 i = 0; i < userVirtualMachines[user].length; i++) {
+            uint256 vmId = userVirtualMachines[user][i];
+            totalMinutes += virtualMachines[vmId].totalMinutesConsumed;
+            if (virtualMachines[vmId].isRunning) {
+                uint256 uptime = block.timestamp - virtualMachines[vmId].startTime;
+                uint256 minutesWithDecimals = (uptime * 10 ** 18) / 60;
+                totalMinutes += minutesWithDecimals;
+            }
+        }
+        return totalMinutes;
+    }
+}
+*/
