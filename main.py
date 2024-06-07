@@ -1,13 +1,12 @@
 import multiprocessing
-from web3 import Web3
 import src.settings as settings
 import src.log as log
+from src.providers.connection_provider import ConnectionProvider
 from src.listeners.create_virtual_machine import CreateVirtualMachine
 from src.listeners.start_virtual_machine import StartVirtualMachine
 from src.listeners.stop_virtual_machine import StopVirtualMachine
 from src.validators.spent_balance_check import SpentBalanceCheck
 from src.validators.validator import Validator
-from src.providers.connection_provider import ConnectionProvider
 
 logger = log.get_logger(__name__)
 
