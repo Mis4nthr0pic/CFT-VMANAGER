@@ -29,8 +29,10 @@ class CreateVirtualMachine(EventListener):
         #print name from vm_data
         print(vm_data['name'])
 
-        ##self.create_vm(vm_data)
+        self.create_vm(vm_data)
 
+    def match_condition(self, event):
+        return True
 
     def create_vm(self, vm_data):
         try:

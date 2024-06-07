@@ -25,7 +25,7 @@ class EventListener:
                     self.last_processed_block = latest_block
 
                 if latest_block > self.last_processed_block:
-                    event_filter = self.contract.events[self.event_name].create_filter(fromBlock=self.last_processed_block, toBlock=latest_block)
+                    event_filter = self.contract.events[self.event_name].create_filter(fromBlock=self.last_processed_block + 1, toBlock=latest_block)
                     events = event_filter.get_all_entries()
                     for event in events:
                         logger.info(f"{self.event_name} event received:")
