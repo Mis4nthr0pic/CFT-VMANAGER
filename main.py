@@ -26,9 +26,9 @@ def main():
     # Define the listener processes
     listeners = [
         (CreateVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        #(StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        #(StopVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
-        #(SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  
+        (StartVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
+        (StopVirtualMachine, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS),
+        (SpentBalanceCheck, settings.RPC_L1_ENDPOINT, settings.VMANAGER_ADDRESS)  
     ]
 
     processes = []

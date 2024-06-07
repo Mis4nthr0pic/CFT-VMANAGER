@@ -15,6 +15,7 @@ class SpentBalanceCheck(Validator):
         self.user_vm_data = load_json(DB_FILE)  # Load data on init
         self.last_processed_block = self.w3.eth.block_number
 
+    #will not check for updated users, need to load json again or keep a memory variable
     def validate(self):
         while True:
             try:
