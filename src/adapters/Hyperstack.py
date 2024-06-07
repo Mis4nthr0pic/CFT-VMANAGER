@@ -1,11 +1,12 @@
 import src.log as log
+import src.settings as settings
 import requests
 
 logger = log.get_logger(__name__)
 
 class HyperStack:
-    def __init__(self, api_key, base_url="https://infrahub-api.nexgencloud.com/v1/core/"):
-        self.api_key = api_key
+    def __init__(self, base_url="https://infrahub-api.nexgencloud.com/v1/core/"):
+        self.api_key = settings.HYPERSTACK_KEY
         self.base_url = base_url
         self.headers = {
             'api_key': self.api_key,

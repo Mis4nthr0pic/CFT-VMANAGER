@@ -1,8 +1,8 @@
 {
     "processed_blocks": {
-        "VirtualMachineCreated": 6054227,
-        "VirtualMachineStarted": 6054227,
-        "VirtualMachineStopped": 6054227
+        "VirtualMachineCreated": 6054597,
+        "VirtualMachineStarted": 6054548,
+        "VirtualMachineStopped": 6054548
     },
     "users": {
         "0xEeB40816c52DE2ae2875f2Ddef43DE9030891a10": [

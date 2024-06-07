@@ -1,33 +1,36 @@
+from .event_listener import EventListener
 import src.log as log
 from src.adapters.Hyperstack import HyperStack
 import random
 
 logger = log.get_logger(__name__)
 
-class CreateVirtualMachine:
+class CreateVirtualMachine(EventListener):
     FILTER = "VirtualMachineCreated"
-    ON_EVENT_MESSAGE = "Creating VM: %s"
 
-    def __init__(self, web3, contract_address, api_key):
-        self.web3 = web3
-        self.contract_address = contract_address
-        self.hyperstack = HyperStack(api_key)
+    def __init__(self, web3, contract_address):
+        print('VirtualMachineCreated watcher started')
+        super().__init__(web3, contract_address, self.FILTER)
+        self.hyperstack = HyperStack()
+        self.colors = [
+            "Crimson", "FireBrick", "Maroon", "Burgundy", "Carmine", "Cerise",
+            "Coral", "Salmon", "Magenta", "Fuchsia", "Rose", "Ruby", "Mahogany",
+            "Tomato", "DeepPink", "HotPink", "LightCoral", "DarkSalmon", "LightSalmon"
+        ]
         self.animals = [
             "Lion", "Lamb", "Eagle", "Serpent", "Dove", "Raven", "Ox", "Leopard", 
             "Bear", "Wolf", "Horse", "Unicorn", "Leviathan", "Vulture"
         ]
 
-    def listen(self):
-        # Listening logic here
-        pass
-
     def on_event(self, event):
         print('EVENT CAUGHT')
         print(event)
-        # Generate VM data
         vm_data = self.get_vm_data_template()
-        # Create the VM
-        #self.create_vm(vm_data)
+        #print name from vm_data
+        print(vm_data['name'])
+
+        ##self.create_vm(vm_data)
+
 
     def create_vm(self, vm_data):
         try:
@@ -39,7 +42,12 @@ class CreateVirtualMachine:
             return None
 
     def get_vm_data_template(self):
-        random_name = f"{random.choice(self.animals)}{random.randint(100000, 999999)}"
+        color = random.choice(self.colors)
+        animal = random.choice(self.animals)
+        number = random.randint(100000, 999999)
+        random_name = f"{color}-{animal}{number}"
+        if len(random_name) > 50:
+            random_name = f"{color[:25]} {animal[:20]}{number}"
         return {
             "name": random_name,
             "environment_name": "CFT-BASIC",

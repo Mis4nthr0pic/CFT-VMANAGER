@@ -8,10 +8,10 @@ class StopVirtualMachine(EventListener):
     FILTER = "VirtualMachineStopped"
     ON_EVENT_MESSAGE = "Stopping VM: %s"
 
-    def __init__(self, web3, contract_address, api_key):
+    def __init__(self, web3, contract_address):
         print('VirtualMachineStopped watcher started')
         super().__init__(web3, contract_address, self.FILTER)
-        self.hyperstack = HyperStack(api_key)
+        self.hyperstack = HyperStack()
 
     def match_condition(self, event):
         return True

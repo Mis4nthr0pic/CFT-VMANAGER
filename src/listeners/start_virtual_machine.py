@@ -8,10 +8,10 @@ class StartVirtualMachine(EventListener):
     FILTER = "VirtualMachineStarted"
     ON_EVENT_MESSAGE = "Starting VM: %s"
 
-    def __init__(self, web3, contract_address, api_key):
+    def __init__(self, web3, contract_address):
         print('VirtualMachineStarted watcher started')
         super().__init__(web3, contract_address, self.FILTER)
-        self.hyperstack = HyperStack(api_key)
+        self.hyperstack = HyperStack()
 
     def match_condition(self, event):
         return True
