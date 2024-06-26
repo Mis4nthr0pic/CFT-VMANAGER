@@ -24,12 +24,14 @@ class CreateVirtualMachine(EventListener):
 
     def on_event(self, event):
         print('EVENT CAUGHT')
-        print(event)
-        vm_data = self.get_vm_data_template()
+        #print(event)
+        #vm_data = self.get_vm_data_template()
         #print name from vm_data
-        print(vm_data['name'])
+        #print(vm_data['name'])
+        
+        #get db connection from settings.py
 
-        self.create_vm(vm_data)
+        #self.create_vm(vm_data)
 
     def match_condition(self, event):
         return True
@@ -43,6 +45,7 @@ class CreateVirtualMachine(EventListener):
             logger.error(f"VM creation failed: {str(e)}")
             return None
 
+    #key name?
     def get_vm_data_template(self):
         color = random.choice(self.colors)
         animal = random.choice(self.animals)
