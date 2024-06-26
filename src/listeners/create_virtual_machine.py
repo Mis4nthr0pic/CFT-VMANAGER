@@ -1,6 +1,7 @@
 from .event_listener import EventListener
 import src.log as log
 from src.adapters.Hyperstack import HyperStack
+from src.providers.database_provider import get_db
 import random
 
 logger = log.get_logger(__name__)
@@ -24,14 +25,16 @@ class CreateVirtualMachine(EventListener):
 
     def on_event(self, event):
         print('EVENT CAUGHT')
-        #print(event)
-        #vm_data = self.get_vm_data_template()
-        #print name from vm_data
-        #print(vm_data['name'])
-        
-        #get db connection from settings.py
+        vm_id = event['args']['vmId']  # Extract user address from event
+        user_address = event['args']['operator']  # Extract user address from event
+        vm_data = self.get_vm_data_template()
+        print(event)
 
-        #self.create_vm(vm_data)
+        # Create VM using Hyperstack
+        response = self.create_vm(vm_data)
+        if response and response.get('status'):
+            instance = response['instances'][0]
+            self.insert_vm_data(vm_data['name'], instance['id'], vm_id, user_address)
 
     def match_condition(self, event):
         return True
@@ -39,13 +42,12 @@ class CreateVirtualMachine(EventListener):
     def create_vm(self, vm_data):
         try:
             response = self.hyperstack.post("virtual-machines", vm_data)
-            logger.info(f"VM creation successful: {response}")
+            logger.info(f"VM creation response: {response}")
             return response
         except Exception as e:
             logger.error(f"VM creation failed: {str(e)}")
             return None
 
-    #key name?
     def get_vm_data_template(self):
         color = random.choice(self.colors)
         animal = random.choice(self.animals)
@@ -65,3 +67,40 @@ class CreateVirtualMachine(EventListener):
             "assign_floating_ip": True,
             "count": 1
         }
+
+    def insert_vm_data(self, name, id_host, vm_id, user_address):
+        """Insert VM data into the database."""
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO virtual_machines (id_contract, id_host, machine_name, owner_address, status)
+                VALUES (%s, %s, %s, %s, %s);
+                """,
+                (
+                    vm_id,
+                    id_host,
+                    name,
+                    user_address,
+                    1
+                )
+            )
+
+            conn.commit()
+            logger.info(f"Inserted VM data into database for VM {vm_id}")
+        except Exception as e:
+            logger.error(f"Error inserting VM data into database: {e}")
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
+
+    def get_status(self, status):
+        """Convert status string to integer for database."""
+        status_map = {
+            'active': 1,
+            'inactive': 0,
+            'terminated': 2
+        }
+        return status_map.get(status.lower(), 0)

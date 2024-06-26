@@ -8,10 +8,10 @@ CREATE TABLE virtual_machines (
     id SERIAL PRIMARY KEY,
 	id_contract SERIAL NOT NULL UNIQUE,
 	id_host SERIAL NOT NULL UNIQUE,
-    owner_address VARCHAR(42) REFERENCES users(address),
+    event_name VARCHAR(42) NOT NULL, -- e.g., "deposit"
+    owner_address VARCHAR(42),
     status numeric NOT NULL,
-    start_time TIMESTAMP,
-	stopped_by VARCHAR(42) REFERENCES users(address)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP	
 );
 
 CREATE TABLE transactions (
