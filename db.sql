@@ -1,14 +1,14 @@
+#todo: setup foreing keys
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     address VARCHAR(42) UNIQUE NOT NULL,
     minute_credits NUMERIC NOT NULL
-);
-
+)
 CREATE TABLE virtual_machines (
     id SERIAL PRIMARY KEY,
 	id_contract SERIAL NOT NULL UNIQUE,
 	id_host SERIAL NOT NULL UNIQUE,
-    event_name VARCHAR(42) NOT NULL, -- e.g., "deposit"
+    machine_name VARCHAR(42) NOT NULL, -- e.g., "deposit"
     owner_address VARCHAR(42),
     status numeric NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP	
