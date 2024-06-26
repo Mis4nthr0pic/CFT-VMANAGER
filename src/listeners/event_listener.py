@@ -32,15 +32,17 @@ class EventListener:
             cursor.close()
             conn.close()
 
-    def update_last_processed_block(self, block_number):
-        """Update the last processed block in the database."""
+    #create function to update last processed block for event, if no row is found create one with current block
+    def update_last_processed_block(self, block):
         conn = get_db()
         cursor = conn.cursor()
         try:
-            cursor.execute(
-                "UPDATE processed_blocks SET block = %s WHERE event_name = %s;", 
-                (block_number, self.event_name)
-            )
+            cursor.execute("SELECT block FROM processed_blocks WHERE event_name = %s ORDER BY id DESC LIMIT 1;", (self.event_name,))
+            row = cursor.fetchone()
+            if row:
+                cursor.execute("UPDATE processed_blocks SET block = %s WHERE event_name = %s;", (block, self.event_name))
+            else:
+                cursor.execute("INSERT INTO processed_blocks (event_name, block) VALUES (%s, %s);", (self.event_name, block))
             conn.commit()
         except Exception as e:
             logger.error(f"Error updating last processed block: {e}")

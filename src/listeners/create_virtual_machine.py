@@ -31,10 +31,13 @@ class CreateVirtualMachine(EventListener):
         print(event)
 
         # Create VM using Hyperstack
+        
         response = self.create_vm(vm_data)
         if response and response.get('status'):
             instance = response['instances'][0]
+            self.insert_user_data(user_address)
             self.insert_vm_data(vm_data['name'], instance['id'], vm_id, user_address)
+        
 
     def match_condition(self, event):
         return True
@@ -68,6 +71,30 @@ class CreateVirtualMachine(EventListener):
             "count": 1
         }
 
+    #function to validate user exists and insert if dont
+    def insert_user_data(self, user_address):
+        """Insert user data into the database."""
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO users (address)
+                VALUES (%s)
+                ON CONFLICT DO NOTHING;
+                """,
+                (user_address,)
+            )
+
+            conn.commit()
+            logger.info(f"Inserted user data into database for user {user_address}")
+        except Exception as e:
+            logger.error(f"Error inserting user data into database: {e}")
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
+
     def insert_vm_data(self, name, id_host, vm_id, user_address):
         """Insert VM data into the database."""
         conn = get_db()
@@ -95,12 +122,3 @@ class CreateVirtualMachine(EventListener):
         finally:
             cursor.close()
             conn.close()
-
-    def get_status(self, status):
-        """Convert status string to integer for database."""
-        status_map = {
-            'active': 1,
-            'inactive': 0,
-            'terminated': 2
-        }
-        return status_map.get(status.lower(), 0)
