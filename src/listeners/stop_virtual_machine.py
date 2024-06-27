@@ -35,7 +35,7 @@ class StopVirtualMachine(EventListener):
         id_host = cursor.fetchone()[0]
 
         try:
-            response = self.hyperstack.get(f"virtual-machines/{id_host}/hibernate")
+            response = self.hyperstack.get(f"virtual-machines/{id_host}/stop")
             logger.info(f"VM {vm_id} hibernated successfully.")
             print(f"VM {vm_id} hibernated successfully.")
         except Exception as e:
