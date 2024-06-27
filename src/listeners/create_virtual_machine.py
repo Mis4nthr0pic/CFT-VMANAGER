@@ -57,7 +57,7 @@ class CreateVirtualMachine(EventListener):
         number = random.randint(100000, 999999)
         random_name = f"{color}-{animal}{number}"
         if len(random_name) > 50:
-            random_name = f"{color[:25]}-{animal[:20]}{number}"
+            random_name = f"{color[:25]}-{animal[:20]}-{number}"
         return {
             "name": random_name,
             "environment_name": "CFT-BASIC",

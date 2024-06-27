@@ -17,39 +17,6 @@ class EventListener:
         logger.info(f"LAST BLOCK PROCESSED: {self.last_processed_block}")
         logger.info(f"{self.event_name} event listener started")
 
-    def get_last_processed_block(self):
-        """Fetch the last processed block from the database."""
-        conn = get_db()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("SELECT block FROM processed_blocks WHERE event_name = %s ORDER BY id DESC LIMIT 1;", (self.event_name,))
-            row = cursor.fetchone()
-            return row[0] if row else 0
-        except Exception as e:
-            logger.error(f"Error fetching last processed block: {e}")
-            return 0
-        finally:
-            cursor.close()
-            conn.close()
-
-    #create function to update last processed block for event, if no row is found create one with current block
-    def update_last_processed_block(self, block):
-        conn = get_db()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("SELECT block FROM processed_blocks WHERE event_name = %s ORDER BY id DESC LIMIT 1;", (self.event_name,))
-            row = cursor.fetchone()
-            if row:
-                cursor.execute("UPDATE processed_blocks SET block = %s WHERE event_name = %s;", (block, self.event_name))
-            else:
-                cursor.execute("INSERT INTO processed_blocks (event_name, block) VALUES (%s, %s);", (self.event_name, block))
-            conn.commit()
-        except Exception as e:
-            logger.error(f"Error updating last processed block: {e}")
-        finally:
-            cursor.close()
-            conn.close()
-
     def listen(self):
         while True:
             try:
@@ -76,3 +43,36 @@ class EventListener:
 
     def on_event(self, event):
         pass
+
+    def get_last_processed_block(self):
+        """Fetch the last processed block from the database."""
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT block FROM processed_blocks WHERE event_name = %s ORDER BY id DESC LIMIT 1;", (self.event_name,))
+            row = cursor.fetchone()
+            return row[0] if row else 0
+        except Exception as e:
+            logger.error(f"Error fetching last processed block: {e}")
+            return 0
+        finally:
+            cursor.close()
+            conn.close()
+
+    def update_last_processed_block(self, block):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT block FROM processed_blocks WHERE event_name = %s ORDER BY id DESC LIMIT 1;", (self.event_name,))
+            row = cursor.fetchone()
+            if row:
+                cursor.execute("UPDATE processed_blocks SET block = %s WHERE event_name = %s;", (block, self.event_name))
+            else:
+                cursor.execute("INSERT INTO processed_blocks (event_name, block) VALUES (%s, %s);", (self.event_name, block))
+            conn.commit()
+        except Exception as e:
+            logger.error(f"Error updating last processed block: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
