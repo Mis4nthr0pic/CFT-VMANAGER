@@ -3,6 +3,7 @@ from web3 import Web3
 from src.settings import load_helper_abi
 from src.providers.database_provider import get_db
 from decimal import Decimal
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,8 @@ class EventListener:
         self.last_processed_block = int(self.get_last_processed_block())  # Fetch from database
         logger.info(f"LAST BLOCK PROCESSED: {self.last_processed_block}")
         logger.info(f"{self.event_name} event listener started")
+        #sleep for 5 seconds
+        time.sleep(5)
 
     def listen(self):
         while True:
@@ -35,6 +38,7 @@ class EventListener:
                             self.on_event(event)
                     self.last_processed_block = latest_block
                     self.update_last_processed_block(latest_block)
+                    time.sleep(5)
             except Exception as e:
                 logger.error(f"Error in listening to events: {e}")
 

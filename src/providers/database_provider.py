@@ -2,7 +2,7 @@ import psycopg2
 import os
 
 # Database connection setup
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:toortoor@cft.clo4cyc8wwx3.eu-north-1.rds.amazonaws.com:5432/CFT')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:111111@cft.clo4cyc8wwx3.eu-north-1.rds.amazonaws.com:5432/CFT')
 
 def get_db():
     """ Connect to the PostgreSQL database server """

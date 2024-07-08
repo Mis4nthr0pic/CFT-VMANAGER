@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: MIT
-
 pragma solidity 0.8.20;
 
 interface ERC20 {
@@ -60,8 +58,13 @@ contract VManager {
     // Function to create a virtual machine
     function createVirtualMachine() external returns (uint256) {
         uint256 vmId = nextId;
+        require(virtualMachines[vmId].totalMinutesConsumed * 10 ** 18 < userMinuteCredits[msg.sender], "Insufficient minute credits");
         virtualMachines[vmId].owner = msg.sender;
-
+        
+        // Mark the virtual machine as running
+        virtualMachines[vmId].isRunning = true;
+        virtualMachines[vmId].currentOperator = msg.sender;
+        virtualMachines[vmId].startTime = block.timestamp;
         // Increment the ID counter for the next virtual machine
 
         nextId++;
